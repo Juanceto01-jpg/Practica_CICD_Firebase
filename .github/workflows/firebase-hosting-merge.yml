@@ -1,27 +1,28 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  Pipeline de PRODUCCIÓN: lo que se mergea a `main` se publica en el canal
 #  `live` de Firebase Hosting.
-#
-#  Buscá los comentarios "TODO A?" y completalos según el enunciado.
 # ─────────────────────────────────────────────────────────────────────────────
 name: Deploy a producción
 
-# TODO A1: Cambiá el trigger para que corra en cada push a la rama `main`.
+# A1: corre en cada push a main
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
-# TODO A4 (opcional): en producción NO queremos cancelar un deploy a mitad de
-#                     camino, pero sí evitar dos deploys en paralelo.
-#                     ¿Cómo configurás `concurrency` para eso?
+# A4: los deploys esperan en fila y nunca se cortan a la mitad
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    # TODO A5 (opcional): asociá este job a un GitHub Environment llamado
-    #                     `production` (permite exigir aprobación manual).
+    # A5: asociado al Environment "production"
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -38,21 +39,19 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # TODO A2: igual que en el workflow de PR, pero con los datos del push a main.
-      #          Pistas: github.sha, github.ref_name
+      # A2: datos del push a main para el footer
       - name: Build (export estático)
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NEXT_PUBLIC_BUILD_SHA: "TODO"
-          NEXT_PUBLIC_BUILD_REF: "TODO"
+          NEXT_PUBLIC_BUILD_SHA: ${{ github.sha }}
+          NEXT_PUBLIC_BUILD_REF: ${{ github.ref_name }}
           NEXT_PUBLIC_BUILD_TIME: ${{ github.event.head_commit.timestamp }}
 
       - name: Deploy al canal live
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # TODO A3: mismo secreto que en el workflow de PR.
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_REEMPLAZAR }}
-          projectId: REEMPLAZAR-POR-TU-PROJECT-ID
-          # TODO A3: ¿qué valor de channelId publica en producción?
-          # channelId: ???
+          # A3: mismo secreto, proyecto y canal live
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRACTICA_FIREBASE_CICD_8A670 }}
+          projectId: practica-firebase-cicd-8a670
+          channelId: live
