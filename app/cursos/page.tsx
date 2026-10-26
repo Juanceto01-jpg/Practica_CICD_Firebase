@@ -8,7 +8,7 @@ export const metadata = {
 export default function CursosPage() {
   return (
     <section>
-      <h1>Cursos disponibles</h1>
+      <h1>Cursos disponibles - Juan</h1>
       <p className="hint">
         El filtro de abajo es un componente de cliente (necesita JavaScript). Si después de
         aplicar la CSP deja de funcionar, ya sabés por dónde empezar a investigar.
